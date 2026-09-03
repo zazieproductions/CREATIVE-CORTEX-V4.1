@@ -1,13 +1,34 @@
 {
-  "name": "vite-react-ts",
+  "name": "nexus-creative-cortex",
   "private": true,
-  "version": "0.0.0",
+  "version": "4.1.0",
   "type": "module",
+  "description": "NEXUS // Creative Cortex v4.1 — a procedural creative-cognition operating system by Zazie Productions. Force-directed concept atlas, seeded field-notes vault, aphorism stream, and a freeform panel workspace, all generated deterministically in the browser.",
+  "author": "Zazie Productions",
+  "keywords": [
+    "creative-coding",
+    "generative-art",
+    "react",
+    "typescript",
+    "canvas",
+    "svg",
+    "procedural",
+    "knowledge-graph",
+    "interactive-art",
+    "creative-technology"
+  ],
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
+    "typecheck": "tsc -b",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "preview": "vite preview",
+    "preview:local": "VITE_BASE=/ vite preview",
+    "assets:atlas": "node scripts/generate-atlas-bg.mjs",
+    "capture:screenshots": "node scripts/capture-screenshots.mjs",
+    "verify": "npm run typecheck && npm run lint && npm run test && npm run build"
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.2.1",
@@ -15,21 +36,24 @@
     "lucide-react": "^0.577.0",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
-    "react-router-dom": "^7.13.1",
     "tailwindcss": "^4.2.1"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",
+    "@sparticuz/chromium": "^149.0.0",
     "@types/node": "^24.10.1",
-    "@types/react": "^19.2.7",
-    "@types/react-dom": "^19.2.3",
+    "@types/react": "^19.2.0",
+    "@types/react-dom": "^19.2.0",
     "@vitejs/plugin-react": "^5.1.1",
     "eslint": "^9.39.1",
     "eslint-plugin-react-hooks": "^7.0.1",
     "eslint-plugin-react-refresh": "^0.4.24",
     "globals": "^16.5.0",
+    "playwright": "^1.62.1",
+    "puppeteer-core": "^25.9.0",
     "typescript": "~5.9.3",
     "typescript-eslint": "^8.48.0",
-    "vite": "^7.3.1"
+    "vite": "^7.3.1",
+    "vitest": "^4.1.11"
   }
 }
