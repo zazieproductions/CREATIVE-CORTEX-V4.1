@@ -12,6 +12,9 @@ dist
 dist-ssr
 *.local
 
+# Environment
+.env
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
@@ -22,5 +25,12 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Harness / tooling artifacts (not part of the archive)
 .vite-source-tags.js
 .vercel
+
+# Test / coverage output
+coverage
+playwright-report
+test-results

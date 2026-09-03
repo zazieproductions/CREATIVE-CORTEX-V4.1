@@ -1,0 +1,9 @@
+/**
+ * Style composition order matters:
+ *   1. tailwind — preflight + utility generation, driven by the tokens below.
+ *   2. tokens  — the @theme design tokens (colours, fonts, motion).
+ *   3. base    — keyframes, globals, and shared surface/utility classes.
+ */
+@import "tailwindcss";
+@import "./tokens.css";
+@import "./base.css";
