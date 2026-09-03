@@ -126,7 +126,7 @@ sequenceDiagram
     A->>A: setFocusTarget('code'), setFocusNonce(n+1)
     A->>W: focusTarget + focusNonce
     Note over W: render sees focusNonce ≠ handledNonce
-    W->>W: compute centred pan, setView, setHandledNonce(non‌ce)
+    W->>W: compute centred pan, setView, setHandledNonce(nonce)
     W->>W: re-render with centred stage
 ```
 

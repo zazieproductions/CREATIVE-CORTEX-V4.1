@@ -39,8 +39,23 @@ flowchart LR
 
 Triggered on pushes to `main` and manually via `workflow_dispatch`. The
 workflow uses the official `actions/configure-pages`, `upload-pages-artifact`,
-and `deploy-pages` actions with the Pages environment enabled on the repo
-(Settings → Pages → Source: **GitHub Actions**).
+and `deploy-pages` actions.
+
+## One-time owner setup
+
+GitHub Pages must be enabled once, by a repository admin — it cannot be turned
+on from a workflow or from a bot token (the GitHub API returns 403 for
+non-admin tokens):
+
+1. **Repository → Settings → Pages → Source → "GitHub Actions".**
+2. In the same screen, confirm the environment is `github-pages` (the workflow
+   declares it).
+3. Merge the branch carrying the workflow into `main` (or trigger it manually
+   with **Actions → Deploy to GitHub Pages → Run workflow**).
+
+After the first successful run, the site is live at
+`https://zazieproductions.github.io/CREATIVE-CORTEX-V4.1/` and every subsequent
+push to `main` redeploys automatically.
 
 ## Manual deployment
 

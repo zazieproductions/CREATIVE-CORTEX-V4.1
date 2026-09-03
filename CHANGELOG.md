@@ -66,6 +66,8 @@ maintainable, documented project.
 
 - `src/App.css` — empty, unreferenced template remnant.
 - `react-router-dom` — declared but never used.
+- `.vite-source-tags.js` — DesignArena export tooling (injected `data-source-loc`
+  attributes); orphaned once `vite.config.ts` no longer imported it.
 - DesignArena export scripts from `index.html` (recording/telemetry/element
   picker).
 
