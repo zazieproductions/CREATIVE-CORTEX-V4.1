@@ -31,10 +31,11 @@ export default defineConfig(({ mode }) => {
     plugins: [react(), tailwindcss()],
     envPrefix: ['VITE_'],
 
-    // Bind to all interfaces so the app is reachable from containerised
-    // previews and CI screenshot jobs, not just loopback.
-    server: { host: true, port: 5173 },
-    preview: { host: true, port: 4173 },
+    // Bind to all interfaces and accept any Host header so the app is
+    // reachable from containerised / proxied previews and CI screenshot jobs,
+    // not just loopback. (Vite 7 otherwise 403s unknown preview hosts.)
+    server: { host: true, port: 5173, allowedHosts: true },
+    preview: { host: true, port: 4173, allowedHosts: true },
 
     build: {
       target: 'es2022',
