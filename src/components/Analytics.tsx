@@ -1,4 +1,4 @@
-import { useMemo, type ReactNode } from 'react';
+import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import { Activity, TrendingUp, Gauge as GaugeIcon, Layers } from 'lucide-react';
 import { buildActivitySeries, buildDomainRadar, buildVelocity } from '../lib/generate';
 import { DOMAIN_COLORS } from '../lib/banks';
@@ -96,7 +96,15 @@ export function Analytics({ notes, visionIndex, ideaVelocity }: AnalyticsProps) 
   const velocity = useMemo(() => buildVelocity(), []);
   const avgCoh = useMemo(() => Math.round(notes.reduce((s, n) => s + n.coherence, 0) / notes.length), [notes]);
   const avgNov = useMemo(() => Math.round(notes.reduce((s, n) => s + n.novelty, 0) / notes.length), [notes]);
-  const entropy = Math.round(72 + Math.sin(Date.now() / 60000) * 6);
+
+  // The entropy gauge drifts slowly with wall-clock time. Date.now() is impure,
+  // so it is sampled into state on a timer rather than read during render.
+  const [clock, setClock] = useState(() => Date.now());
+  useEffect(() => {
+    const t = setInterval(() => setClock(Date.now()), 30_000);
+    return () => clearInterval(t);
+  }, []);
+  const entropy = Math.round(72 + Math.sin(clock / 60_000) * 6);
 
   return (
     <div className="flex flex-col h-full p-2.5 gap-2.5 overflow-y-auto">

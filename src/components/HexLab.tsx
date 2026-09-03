@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Palette as PalIcon, Lock, Unlock, Shuffle, Copy, Check, RotateCcw } from 'lucide-react';
+import { Palette as PalIcon, Lock, Unlock, Shuffle, Check, RotateCcw } from 'lucide-react';
 import { generatePalette, SEED_PALETTES } from '../lib/generate';
 import type { Palette } from '../types';
 

@@ -8,14 +8,15 @@ interface VisionStreamProps {
 }
 
 export function VisionStream({ onNew }: VisionStreamProps) {
-  const genRef = useRef<VisionGenerator | null>(null);
-  if (!genRef.current) genRef.current = new VisionGenerator();
+  // Lazy, render-safe singleton: the generator holds a counter that must
+  // survive re-renders, so it lives in state rather than a ref.
+  const [gen] = useState(() => new VisionGenerator());
   const [feed, setFeed] = useState<VisionEntry[]>([]);
   const [typed, setTyped] = useState('');
   const targetRef = useRef<VisionEntry | null>(null);
 
   useEffect(() => {
-    targetRef.current = genRef.current!.next();
+    targetRef.current = gen.next();
     let i = 0;
     let phase: 'typing' | 'pause' = 'typing';
     let pause = 0;
@@ -31,7 +32,7 @@ export function VisionStream({ onNew }: VisionStreamProps) {
         if (pause > 30) {
           setFeed((f) => [t, ...f].slice(0, 14));
           onNew?.();
-          targetRef.current = genRef.current!.next();
+          targetRef.current = gen.next();
           i = 0;
           phase = 'typing';
           setTyped('');
@@ -39,7 +40,7 @@ export function VisionStream({ onNew }: VisionStreamProps) {
       }
     }, 30);
     return () => clearInterval(id);
-  }, [onNew]);
+  }, [onNew, gen]);
 
   return (
     <div className="flex flex-col h-full">

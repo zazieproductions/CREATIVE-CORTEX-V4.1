@@ -8,40 +8,64 @@ interface NeuralGraphProps {
   onOpenNote: (id: string) => void;
 }
 
+interface Pulse {
+  /** Index into EDGES the pulse is currently travelling along. */
+  i: number;
+  /** Progress along the edge, 0..1. */
+  t: number;
+  /** Per-frame progress increment. */
+  sp: number;
+}
+
 const VBW = 1080;
 const VBH = 720;
 
+const seedPulses = (): Pulse[] =>
+  Array.from({ length: 18 }, () => ({
+    i: Math.floor(Math.random() * EDGES.length),
+    t: Math.random(),
+    sp: 0.0035 + Math.random() * 0.007,
+  }));
+
+const createInitialNodes = (): ConceptNode[] => CONCEPTS.map((c) => ({ ...c }));
+
 export function NeuralGraph({ notes, onOpenNote }: NeuralGraphProps) {
   const svgRef = useRef<SVGSVGElement>(null);
-  const nodesRef = useRef<ConceptNode[]>(CONCEPTS.map((c) => ({ ...c })));
-  const pulsesRef = useRef<{ i: number; t: number; sp: number }[]>([]);
-  const dragRef = useRef<string | null>(null);
-  const [, setTick] = useState(0);
-  const [selected, setSelected] = useState<ConceptNode | null>(null);
-  const [hover, setHover] = useState<string | null>(null);
-  const nodeById = (id: string) => nodesRef.current.find((n) => n.id === id);
 
-  useEffect(() => {
-    pulsesRef.current = Array.from({ length: 18 }, () => ({
-      i: Math.floor(Math.random() * EDGES.length),
-      t: Math.random(),
-      sp: 0.0035 + Math.random() * 0.007,
-    }));
-  }, []);
+  // The physics loop mutates these refs in place every frame (they never need
+  // to trigger a render on their own). A snapshot is copied into state once per
+  // frame so the SVG re-renders from plain state, never from ref reads. Both
+  // the ref and the state start from the same factory, so their initial values
+  // agree before the first animation frame overwrites the state.
+  const nodesRef = useRef<ConceptNode[]>(createInitialNodes());
+  const pulsesRef = useRef<Pulse[]>(seedPulses());
+  const dragRef = useRef<string | null>(null);
+
+  const [nodes, setNodes] = useState<ConceptNode[]>(createInitialNodes);
+  const [pulses, setPulses] = useState<Pulse[]>(seedPulses);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [hover, setHover] = useState<string | null>(null);
+
+  const nodeById = (id: string) => nodes.find((n) => n.id === id);
 
   useEffect(() => {
     let raf = 0;
     const loop = () => {
-      const nodes = nodesRef.current;
+      const ns = nodesRef.current;
       const K_REP = 1500;
       const K_SPR = 0.014;
       const IDEAL = 158;
-      for (const n of nodes) { n.vx *= 0.85; n.vy *= 0.85; }
-      for (let i = 0; i < nodes.length; i++) {
-        const a = nodes[i];
-        for (let j = i + 1; j < nodes.length; j++) {
-          const b = nodes[j];
-          let dx = a.x - b.x, dy = a.y - b.y;
+
+      // Damping.
+      for (const n of ns) { n.vx *= 0.85; n.vy *= 0.85; }
+
+      // Repulsion between every node pair.
+      for (let i = 0; i < ns.length; i++) {
+        const a = ns[i];
+        for (let j = i + 1; j < ns.length; j++) {
+          const b = ns[j];
+          const dx = a.x - b.x;
+          const dy = a.y - b.y;
           let d2 = dx * dx + dy * dy; if (d2 < 1) d2 = 1;
           const d = Math.sqrt(d2);
           const f = K_REP / d2;
@@ -50,8 +74,11 @@ export function NeuralGraph({ notes, onOpenNote }: NeuralGraphProps) {
           if (dragRef.current !== b.id) { b.vx -= fx; b.vy -= fy; }
         }
       }
+
+      // Spring attraction along edges (weighted).
       for (const e of EDGES) {
-        const a = nodeById(e.source)!; const b = nodeById(e.target)!;
+        const a = ns.find((n) => n.id === e.source)!;
+        const b = ns.find((n) => n.id === e.target)!;
         if (!a || !b) continue;
         const dx = b.x - a.x, dy = b.y - a.y;
         const d = Math.hypot(dx, dy) || 1;
@@ -60,7 +87,10 @@ export function NeuralGraph({ notes, onOpenNote }: NeuralGraphProps) {
         if (dragRef.current !== a.id) { a.vx += fx; a.vy += fy; }
         if (dragRef.current !== b.id) { b.vx -= fx; b.vy -= fy; }
       }
-      for (const n of nodes) {
+
+      // Weak gravity toward the canvas centre + jitter keeps the field from
+      // collapsing into a single point or drifting off-screen.
+      for (const n of ns) {
         if (dragRef.current === n.id) continue;
         n.vx += (VBW / 2 - n.x) * 0.0006;
         n.vy += (VBH / 2 - n.y) * 0.0006;
@@ -69,11 +99,16 @@ export function NeuralGraph({ notes, onOpenNote }: NeuralGraphProps) {
         n.x = Math.max(46, Math.min(VBW - 46, n.x + n.vx));
         n.y = Math.max(40, Math.min(VBH - 40, n.y + n.vy));
       }
+
+      // Advance the travelling pulses.
       for (const p of pulsesRef.current) {
         p.t += p.sp;
         if (p.t > 1) { p.t = 0; p.i = Math.floor(Math.random() * EDGES.length); }
       }
-      setTick((t) => (t + 1) % 1_000_000);
+
+      // Snapshot into render state.
+      setNodes(ns.map((n) => ({ ...n })));
+      setPulses(pulsesRef.current.map((p) => ({ ...p })));
       raf = requestAnimationFrame(loop);
     };
     raf = requestAnimationFrame(loop);
@@ -92,12 +127,14 @@ export function NeuralGraph({ notes, onOpenNote }: NeuralGraphProps) {
     e.stopPropagation();
     (e.currentTarget as Element).setPointerCapture(e.pointerId);
     dragRef.current = n.id;
-    setSelected(n);
+    setSelectedId(n.id);
   };
   const onNodeMove = (e: PointerEvent) => {
     if (!dragRef.current) return;
     const { x, y } = toSvg(e.clientX, e.clientY);
-    const n = nodeById(dragRef.current);
+    // Mutate the physics working set directly; the next frame's snapshot
+    // propagates the change into render state.
+    const n = nodesRef.current.find((m) => m.id === dragRef.current);
     if (n) { n.x = x; n.y = y; n.vx = 0; n.vy = 0; }
   };
   const onNodeUp = (e: PointerEvent) => {
@@ -107,17 +144,17 @@ export function NeuralGraph({ notes, onOpenNote }: NeuralGraphProps) {
 
   const recenter = () => {
     nodesRef.current = CONCEPTS.map((c) => ({ ...c }));
-    setSelected(null);
+    setNodes(nodesRef.current.map((n) => ({ ...n })));
+    setSelectedId(null);
   };
 
-  const nodes = nodesRef.current;
-  const pulses = pulsesRef.current;
-  const activeId = selected?.id ?? hover;
+  const selected = selectedId ? nodeById(selectedId) : null;
+  const activeId = selectedId ?? hover;
   const neighborIds = activeId
     ? EDGES.filter((e) => e.source === activeId || e.target === activeId)
         .map((e) => (e.source === activeId ? e.target : e.source))
     : [];
-  const related = selected ? notes.filter((nt) => nt.conceptId === selected.id).slice(0, 4) : [];
+  const related = selectedId ? notes.filter((nt) => nt.conceptId === selectedId).slice(0, 4) : [];
 
   return (
     <div className="relative w-full h-full bg-[radial-gradient(circle_at_50%_45%,rgba(34,211,238,0.06),transparent_60%)]">
@@ -142,7 +179,7 @@ export function NeuralGraph({ notes, onOpenNote }: NeuralGraphProps) {
         {/* edges */}
         <g>
           {EDGES.map((e) => {
-            const a = nodeById(e.source)!; const b = nodeById(e.target)!;
+            const a = nodeById(e.source); const b = nodeById(e.target);
             if (!a || !b) return null;
             const lit = activeId && (e.source === activeId || e.target === activeId);
             return (
@@ -162,7 +199,7 @@ export function NeuralGraph({ notes, onOpenNote }: NeuralGraphProps) {
         <g>
           {pulses.map((p, idx) => {
             const e = EDGES[p.i]; if (!e) return null;
-            const a = nodeById(e.source)!; const b = nodeById(e.target)!;
+            const a = nodeById(e.source); const b = nodeById(e.target);
             if (!a || !b) return null;
             const x = a.x + (b.x - a.x) * p.t;
             const y = a.y + (b.y - a.y) * p.t;
@@ -178,7 +215,7 @@ export function NeuralGraph({ notes, onOpenNote }: NeuralGraphProps) {
         {/* nodes */}
         <g>
           {nodes.map((n) => {
-            const isSel = selected?.id === n.id;
+            const isSel = selectedId === n.id;
             const isHover = hover === n.id;
             const isNb = neighborIds.includes(n.id);
             const r = n.r + (isSel ? 4 : isHover ? 2 : 0);
@@ -234,13 +271,13 @@ export function NeuralGraph({ notes, onOpenNote }: NeuralGraphProps) {
               <div className="font-mono text-[11px] font-semibold text-ink truncate">{selected.label}</div>
               <div className="font-mono text-[9px] uppercase tracking-wider text-ink-dim">{selected.domain}</div>
             </div>
-            <button onClick={() => setSelected(null)} className="text-ink-dim hover:text-flux text-xs px-1">✕</button>
+            <button onClick={() => setSelectedId(null)} className="text-ink-dim hover:text-flux text-xs px-1">✕</button>
           </div>
           <div className="mt-2 flex flex-wrap gap-1">
             {neighborIds.slice(0, 8).map((id) => {
               const nb = nodeById(id);
               return nb ? (
-                <button key={id} onClick={() => setSelected(nb)} className="font-mono text-[9px] px-1.5 py-0.5 rounded bg-white/[0.05] border border-white/[0.07] text-ink-dim hover:text-ink hover:border-white/20 transition-colors">
+                <button key={id} onClick={() => setSelectedId(id)} className="font-mono text-[9px] px-1.5 py-0.5 rounded bg-white/[0.05] border border-white/[0.07] text-ink-dim hover:text-ink hover:border-white/20 transition-colors">
                   {nb.label}
                 </button>
               ) : null;

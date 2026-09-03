@@ -24,6 +24,7 @@ export default function App() {
   const [panels, setPanels] = useState<PanelState[]>(() => DEFAULT_PANELS.map((p) => ({ ...p })));
   const [raisedId, setRaisedId] = useState<string | null>('neural');
   const [focusTarget, setFocusTarget] = useState<string | null>(null);
+  const [focusNonce, setFocusNonce] = useState(0);
   const [expanded, setExpanded] = useState<string | null>(null);
   const [selectedNote, setSelectedNote] = useState<Note | null>(null);
   const [selectedProto, setSelectedProto] = useState<CodeProto | null>(null);
@@ -48,7 +49,6 @@ export default function App() {
 
   const bumpVision = useCallback(() => setVisionIndex((v) => 30 + ((v - 30 + 7) % 70)), []);
   const onViewport = useCallback((vp: { w: number; h: number }) => { vpRef.current = vp; }, []);
-  const onFocused = useCallback(() => setFocusTarget(null), []);
 
   const movePanel = (id: string, x: number, y: number) => setPanels((ps) => ps.map((p) => (p.id === id ? { ...p, x, y } : p)));
   const resizePanel = (id: string, w: number, h: number) => setPanels((ps) => ps.map((p) => (p.id === id ? { ...p, w, h } : p)));
@@ -59,6 +59,7 @@ export default function App() {
     setPanels((ps) => ps.map((p) => (p.id === id ? { ...p, visible: true } : p)));
     setRaisedId(id);
     setFocusTarget(id);
+    setFocusNonce((n) => n + 1);
   };
   const togglePanel = (id: string) => setPanels((ps) => ps.map((p) => (p.id === id ? { ...p, visible: !p.visible } : p)));
   const resetLayout = () => {
@@ -114,12 +115,12 @@ export default function App() {
           panels={panels}
           raisedId={raisedId}
           focusTarget={focusTarget}
+          focusNonce={focusNonce}
           onMove={movePanel}
           onResize={resizePanel}
           onHide={hidePanel}
           onExpand={setExpanded}
           onRaise={raisePanel}
-          onFocused={onFocused}
           onViewport={onViewport}
           renderContent={renderContent}
         />

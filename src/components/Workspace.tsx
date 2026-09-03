@@ -10,12 +10,14 @@ interface WorkspaceProps {
   panels: PanelState[];
   raisedId: string | null;
   focusTarget: string | null;
+  /** Increments every time a panel is focused, even when it is already the
+   *  focused panel, so re-focusing the same module re-centers it. */
+  focusNonce: number;
   onMove: (id: string, x: number, y: number) => void;
   onResize: (id: string, w: number, h: number) => void;
   onHide: (id: string) => void;
   onExpand: (id: string) => void;
   onRaise: (id: string) => void;
-  onFocused: () => void;
   onViewport: (vp: { w: number; h: number }) => void;
   renderContent: (id: string) => ReactNode;
 }
@@ -30,45 +32,55 @@ const clampPan = (pan: { x: number; y: number }, scale: number, vw: number, vh: 
 };
 
 export function Workspace({
-  panels, raisedId, focusTarget, onMove, onResize, onHide, onExpand, onRaise, onFocused, onViewport, renderContent,
+  panels, raisedId, focusTarget, focusNonce, onMove, onResize, onHide, onExpand, onRaise, onViewport, renderContent,
 }: WorkspaceProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [vp, setVp] = useState({ w: 1200, h: 700 });
   const [view, setView] = useState<View>({ pan: { x: 0, y: 0 }, scale: 1 });
+  const [panning, setPanning] = useState(false);
   const panRef = useRef<{ px: number; py: number; ox: number; oy: number } | null>(null);
 
   useEffect(() => {
     const el = containerRef.current;
     if (!el) return;
+    // ResizeObserver callback is an event handler, so updating `view` here (to
+    // re-clamp the pan against the new viewport) is event-driven, not an
+    // effect-side-effect.
     const ro = new ResizeObserver(() => {
       const w = el.clientWidth, h = el.clientHeight;
       setVp({ w, h });
       onViewport({ w, h });
+      setView((v) => ({ ...v, pan: clampPan(v.pan, v.scale, w, h) }));
     });
     ro.observe(el);
     onViewport({ w: el.clientWidth, h: el.clientHeight });
     return () => ro.disconnect();
   }, [onViewport]);
 
-  useEffect(() => {
-    setView((v) => ({ ...v, pan: clampPan(v.pan, v.scale, vp.w, vp.h) }));
-  }, [vp]);
-
-  // focus/center a panel
-  useEffect(() => {
-    if (!focusTarget) return;
-    const st = panels.find((p) => p.id === focusTarget);
-    if (!st) return;
-    const wx = st.x + st.w / 2;
-    const wy = st.y + st.h / 2;
-    const scale = view.scale;
-    setView((v) => ({ scale: v.scale, pan: clampPan({ x: vp.w / 2 - wx * scale, y: vp.h / 2 - wy * scale }, scale, vp.w, vp.h) }));
-    onFocused();
-  }, [focusTarget]); // eslint-disable-line react-hooks/exhaustive-deps
+  // Center the focused panel. This runs during render via the "adjust state on
+  // prop change" pattern rather than inside an effect: when `focusNonce`
+  // advances we recompute the view once and record the nonce we handled.
+  const [handledNonce, setHandledNonce] = useState(focusNonce);
+  if (focusNonce !== handledNonce) {
+    setHandledNonce(focusNonce);
+    if (focusTarget) {
+      const st = panels.find((p) => p.id === focusTarget);
+      if (st) {
+        const wx = st.x + st.w / 2;
+        const wy = st.y + st.h / 2;
+        const scale = view.scale;
+        setView((v) => ({
+          scale: v.scale,
+          pan: clampPan({ x: vp.w / 2 - wx * scale, y: vp.h / 2 - wy * scale }, scale, vp.w, vp.h),
+        }));
+      }
+    }
+  }
 
   const startPan = (e: PointerEvent) => {
     e.currentTarget.setPointerCapture(e.pointerId);
     panRef.current = { px: e.clientX, py: e.clientY, ox: view.pan.x, oy: view.pan.y };
+    setPanning(true);
   };
   const movePan = (e: PointerEvent) => {
     if (!panRef.current) return;
@@ -79,6 +91,7 @@ export function Workspace({
   const endPan = (e: PointerEvent) => {
     e.currentTarget.releasePointerCapture?.(e.pointerId);
     panRef.current = null;
+    setPanning(false);
   };
 
   const zoomAt = (factor: number, cx?: number, cy?: number) => {
@@ -114,10 +127,11 @@ export function Workspace({
       onPointerUp={endPan}
       onPointerCancel={endPan}
       onWheel={onWheel}
-      style={{ cursor: panRef.current ? 'grabbing' : 'default' }}
+      style={{ cursor: panning ? 'grabbing' : 'default' }}
     >
-      {/* atmospheric backdrop */}
-      <img src="/atlas-bg.png" alt="" className="absolute inset-0 w-full h-full object-cover opacity-[0.08] pointer-events-none mix-blend-screen" />
+      {/* atmospheric backdrop — asset path via BASE_URL so relative builds
+          (e.g. GitHub Pages) resolve it against the deployed sub-path */}
+      <img src={`${import.meta.env.BASE_URL}atlas-bg.svg`} alt="" className="absolute inset-0 w-full h-full object-cover opacity-[0.08] pointer-events-none mix-blend-screen" />
 
       {/* stage */}
       <div

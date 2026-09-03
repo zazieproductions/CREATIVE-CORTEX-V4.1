@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Search, FileText, Network, Crosshair, CornerDownLeft } from 'lucide-react';
 import { CONCEPTS } from '../lib/concepts';
 import { SCHEMES } from '../lib/generate';
@@ -33,7 +33,14 @@ export function CommandPalette({ open, notes, onClose, onOpenNote, onFocusPanel 
     return base.filter((it) => (it.title + ' ' + it.sub).toLowerCase().includes(ql)).slice(0, 50);
   }, [notes, q]);
 
-  useEffect(() => { setActive(0); }, [q]);
+  const exec = useCallback((it?: Item) => {
+    if (!it) return;
+    if (it.kind === 'note') onOpenNote(it.id);
+    else if (it.kind === 'concept') onFocusPanel('neural');
+    else onFocusPanel('schemes');
+    onClose();
+    setQ('');
+  }, [onOpenNote, onFocusPanel, onClose]);
 
   useEffect(() => {
     if (!open) return;
@@ -45,18 +52,9 @@ export function CommandPalette({ open, notes, onClose, onOpenNote, onFocusPanel 
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [open, items, active]);
+  }, [open, items, active, exec, onClose]);
 
   if (!open) return null;
-
-  const exec = (it?: Item) => {
-    if (!it) return;
-    if (it.kind === 'note') onOpenNote(it.id);
-    else if (it.kind === 'concept') onFocusPanel('neural');
-    else onFocusPanel('schemes');
-    onClose();
-    setQ('');
-  };
 
   return (
     <div className="fixed inset-0 z-[300] flex items-start justify-center pt-[12vh] px-4">
@@ -67,7 +65,7 @@ export function CommandPalette({ open, notes, onClose, onOpenNote, onFocusPanel 
           <input
             autoFocus
             value={q}
-            onChange={(e) => setQ(e.target.value)}
+            onChange={(e) => { setQ(e.target.value); setActive(0); }}
             placeholder="search notes, concepts, schemes…"
             className="flex-1 bg-transparent outline-none font-mono text-sm text-ink placeholder:text-ink-faint py-3.5"
           />

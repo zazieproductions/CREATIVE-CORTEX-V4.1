@@ -39,7 +39,7 @@ const FRAG_C = [
 
 const VISION_TAGS = ['axiom', 'hyperstition', 'field-note', 'aphorism', 'proto-scheme', 'resonant', 'dangerous', 'speculative'];
 
-export function makeVision(rng: Rng, id: number): { text: string; tags: string[] } {
+export function makeVision(rng: Rng): { text: string; tags: string[] } {
   const roll = rng();
   let text: string;
   if (roll < 0.5) {
@@ -66,14 +66,14 @@ export class VisionGenerator {
   }
   next() {
     this.counter += 1;
-    return { id: this.counter, ...makeVision(this.rng, this.counter), ts: Date.now() };
+    return { id: this.counter, ...makeVision(this.rng), ts: Date.now() };
   }
 }
 
 /* ------------------------------------------------------ IDEA SYNTHESIS */
 
 const SYN_TEMPLATES: ((a: string, b: string, rng: Rng) => { title: string; desc: string })[] = [
-  (a, b, _r) => ({
+  (a, b) => ({
     title: `${a} x ${b}`,
     desc: `A hybrid operator: ${a} becomes the substrate and ${b} the forcing function. The composite inherits the surface area of both while collapsing their independent failure modes — ${b} supplies novelty, ${a} supplies the rails that keep it load-bearing.`,
   }),
@@ -85,7 +85,7 @@ const SYN_TEMPLATES: ((a: string, b: string, rng: Rng) => { title: string; desc:
     title: `The ${a}-${b} Recursion`,
     desc: `Feed ${a}'s output into ${b}'s input and vice versa. Each loop anneals the other toward a fixed point neither could reach alone. The attractor is a novel ${pick(r, ['institution', 'artifact', 'market', 'ritual', 'medium'])} that did not exist in either parent's possibility space.`,
   }),
-  (a, b, _r) => ({
+  (a, b) => ({
     title: `${b} as the Limit Case of ${a}`,
     desc: `Push ${a} toward its degenerate edge and it discloses ${b}. The synthesis is not additive but diagnostic: ${b} was always the grain of ${a} revealed under torsion. Engineering the torsion is the work.`,
   }),
