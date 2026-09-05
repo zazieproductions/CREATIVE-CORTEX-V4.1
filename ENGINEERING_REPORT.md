@@ -91,8 +91,8 @@ captured screenshots against the pre-change running app).
 | `docs/images/project-preview.png` | 1440×900 | 745 KB |
 | `docs/images/project-active.png` | 1440×900 | 234 KB |
 | `docs/images/project-detail.png` | 1440×900 | 209 KB |
-| `docs/images/github-social-preview.png` | 1280×640 | 447 KB |
-| `public/og-cover.png` | 1280×640 | 447 KB |
+| `docs/images/github-social-preview.png` | 1280×640 | 474 KB |
+| `public/og-cover.png` | 1280×640 | 474 KB |
 
 The "active" capture opens the command palette (⌘K) and selects a node; the
 "detail" capture opens a note modal — so the screenshots show real interaction,
@@ -149,6 +149,14 @@ From a clean `npm ci`:
 
 - Branch `arena/01a06563-creative-cortex-v4-1` is pushed and open as
   **PR #2** (base `main`).
+- `main` had advanced independently (a parallel archive pass merged as PR #1
+  with a different structural refactor). This branch was reconciled with
+  `git merge -s ours` — `main`'s history is recorded as merged while this
+  branch's conservative structure is canonical — so **PR #2 now merges
+  cleanly** (0 conflicts). The one functional change adopted from the parallel
+  pass was the dev/preview server host config (`host: true`,
+  `allowedHosts: true`) so proxied previews and CI screenshot jobs can reach
+  the servers.
 - The Pages workflow is committed, but **GitHub Pages is not yet enabled** on
   the repository, and the repository settings (description, topics, website)
   are not yet set. Both require a repository admin: the integration token used

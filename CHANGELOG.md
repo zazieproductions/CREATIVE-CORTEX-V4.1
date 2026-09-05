@@ -73,6 +73,10 @@ maintainable, documented project.
 
 ### Fixed
 
+- Dev/preview servers now bind to all interfaces and accept any Host header
+  (`host: true`, `allowedHosts: true`) so proxied live previews and CI
+  screenshot jobs can reach them (Vite 7 otherwise 403s unknown hosts).
+
 - 22 pre-existing lint errors (unused vars/imports, `prefer-const`,
   `@ts-ignore`, empty blocks, ref-during-render, set-state-in-effect,
   impure-render `Date.now()`).

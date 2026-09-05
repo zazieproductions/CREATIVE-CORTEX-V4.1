@@ -12,4 +12,10 @@ import tailwindcss from '@tailwindcss/vite'
 export default defineConfig({
   plugins: [react(), tailwindcss()],
   base: './',
+
+  // Bind to all interfaces and accept any Host header so the dev/preview
+  // servers are reachable from containerised / proxied previews and CI
+  // screenshot jobs, not just loopback. Vite 7 otherwise 403s unknown hosts.
+  server: { host: true, port: 5173, allowedHosts: true },
+  preview: { host: true, port: 4173, allowedHosts: true },
 })
