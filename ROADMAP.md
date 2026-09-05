@@ -1,34 +1,74 @@
 # Roadmap
 
-Distinguishes realistic near-term work from experimental and research directions. Nothing here is a commitment; it is a map of intent.
+Directions are separated into **Near-term** (realistic, grounded in the current
+architecture), **Experimental** (more ambitious creative possibilities), and
+**Research directions** (unusual ideas worth exploring, not commitments).
+Nothing here is a promise; this is a map of the space around the work.
+
+---
 
 ## Near-term
 
-Realistic, architecture-compatible improvements.
+Grounded in the current React/SVG/seeded-RNG architecture.
 
-- **`prefers-reduced-motion`**: pause the idle jitter/pulses/typist when the OS preference is set; keep the instrument legible when still.
-- **Accessibility pass**: focus management for panels/modals, ARIA labels for the stage and atlas, an atlas that is navigable by keyboard.
-- **Canvas atlas option**: move the force simulation to `<canvas>` behind a flag to cut per-frame React reconciliation on low-end GPUs.
-- **Wider keyboard surface**: panel focus/hide/expand shortcuts beyond the palette.
-- **Code-split modals** to trim initial JS.
+- **Persistence** — save panel layout, committed notes, and palettes to
+  `localStorage` (or an export/import JSON file). The single highest-leverage
+  improvement: it turns the instrument from a one-shot into something with a
+  memory of *the user* as distinct from its seeded memory.
+- **User presets** — named layout presets ("lab", "writing", "surveillance")
+  alongside reset.
+- **Graph keyboard access** — per-node focus via tab/arrow keys and a
+  searchable node list, closing the current pointer-only gap.
+- **Note detail from every surface** — deep-link a note by id in the URL hash so
+  a single note can be shared.
+- **Palette export** — copy a palette as CSS variables / Tailwind theme /
+  JSON.
+- **Scheme status controls** — let the user advance a scheme's phase/status for
+  the theatre of the thing.
 
 ## Experimental
 
-More ambitious creative possibilities that fit the current system.
+More ambitious, still feasible on the current stack.
 
-- **Persistence of the committed**: serialize forge-committed notes to `localStorage` behind an explicit "remember me" toggle, without breaking default determinism.
-- **User seeds**: a seed field that regenerates the whole corpus live, making determinism a control rather than a constant.
-- **Audio layer**: a WebAudio drone/sonification driven by the same activity series that feeds the UI — the OS gains a voice, still no network.
-- **Offline export**: render the current corpus to a downloadable JSON/Markdown "field manual".
-- **Patch/preset system**: save and recall panel layouts as named patches.
+- **WebAudio / AudioWorklets** — an actual audio engine to match the visual
+  "signal" language: map graph node activity to a generative FM/granular voice,
+  let pulses trigger percussive events. The OS currently *performs* listening;
+  it could actually listen.
+- **Generative sequencing** — a step sequencer driven by the activity series or
+  the graph's pulse traffic.
+- **Spatial audio** — pan audio across the stage; a node's screen position maps
+  to a spatial position.
+- **Shader systems** — port the Neural Atlas (and the `Resonance Coupling
+  Shader` sketch) to WebGL for thousands of nodes; the graph becomes a field.
+- **Patch systems** — a node-graph editor that wires instruments to each other
+  (vision stream → synthesis → palette → audio).
+- **Downloadable output** — render the current state (or a session) to a poster,
+  an SVG, a JSON snapshot, or a WAV.
+- **Offline rendering** — headless capture at very high resolution for print.
 
 ## Research directions
 
-Unusual ideas worth exploring; not implied features.
+Unusual, low-commitment, high-friction ideas.
 
-- **AudioWorklet-driven cortex**: replace the seeded activity series with a real analysis of the audio layer, closing the loop between sound and instrument.
-- **Shader substrate**: a fragment-shader background (the existing `Resonance Coupling Shader` prototype promoted to the stage) for volumetric decay.
-- **Spatial audio**: position each domain cluster in a stereo field so the atlas is audible as well as visible.
-- **Sensors / live performance mode**: drive jitter and velocity from microphone or MIDI for stage use.
-- **Generative sequencing**: let the vision stream's grammar evolve via a simple L-system so the voice drifts over a session.
-- **Multi-mind**: two seeded corpora in counterpoint, rendered as interfering fields.
+- **MIDI / OSC / WebMIDI** — the OS as a controller for external instruments,
+  or controlled by them; a physical drum pad drives the graph.
+- **Live performance modes** — a full-screen, mouse-free "performance" view
+  where the OS plays itself.
+- **Sensors** — device motion/light sensors as generative inputs (the
+  "phenomena" bank already names the vocabulary).
+- **Procedural states** — treat the *interface itself* as the generated object:
+  seed a whole OS instance, not just its contents.
+- **Multi-seed exploration** — a "seed browser" that lets the visitor step
+  through adjacent minds (seed ± 1) and watch the vault re-write itself.
+- **Persistent collective memory** — a shared, opt-in, write-only "communal
+  vault" where committed notes from all visitors accumulate (the fiction's
+  "collective unconscious" made literal — and a real moderation question).
+
+## Principles for choosing what to build
+
+1. Extend the premise — every feature should make the "operating system for a
+   mind" fiction *more* convincing or *more* unsettling.
+2. Prefer systems over content — a generator that produces ten thousand schemes
+   is more interesting than ten more hand-written schemes.
+3. Keep it static — the project's zero-backend nature is a feature; adding a
+   server is a decision to make loudly, not incidentally.

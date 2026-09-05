@@ -1,7 +1,6 @@
 import { mulberry32, pickN } from './rng';
 import type { ConceptNode, GraphEdge } from '../types';
 import { DOMAINS } from './banks';
-import { SEEDS } from './config';
 
 // Curated concept nodes — 3 per domain — forming the neural map.
 const RAW: Record<string, string[]> = {
@@ -23,7 +22,7 @@ const RAW: Record<string, string[]> = {
 };
 
 function buildConcepts(): { nodes: ConceptNode[]; edges: GraphEdge[] } {
-  const rng = mulberry32(SEEDS.concepts);
+  const rng = mulberry32(20240517);
   const nodes: ConceptNode[] = [];
   const byDomain: Record<string, ConceptNode[]> = {};
 

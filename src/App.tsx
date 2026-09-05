@@ -1,23 +1,22 @@
 import { useState, useMemo, useEffect, useRef, useCallback } from 'react';
-import { OsBar } from './components/shell/OsBar';
-import { Sidebar } from './components/shell/Sidebar';
-import { Workspace } from './components/shell/Workspace';
-import { CommandPalette } from './components/shell/CommandPalette';
-import { Modal } from './components/shell/Modal';
-import { NeuralGraph } from './components/panels/NeuralGraph';
-import { VisionStream } from './components/panels/VisionStream';
-import { Analytics } from './components/panels/Analytics';
-import { NotesVault } from './components/panels/NotesVault';
-import { NoteDetail } from './components/panels/NoteDetail';
-import { IdeaSynthesis } from './components/panels/IdeaSynthesis';
-import { HexLab } from './components/panels/HexLab';
-import { CodePrototypes, CodeView } from './components/panels/CodePrototypes';
-import { Schemes } from './components/panels/Schemes';
-import { generateNotes } from './lib/notes';
-import { buildActivitySeries } from './lib/analytics';
-import { SCHEMES } from './lib/schemes';
+import { OsBar } from './components/OsBar';
+import { Sidebar } from './components/Sidebar';
+import { Workspace } from './components/Workspace';
+import { CommandPalette } from './components/CommandPalette';
+import { Modal } from './components/Modal';
+import { NeuralGraph } from './components/NeuralGraph';
+import { VisionStream } from './components/VisionStream';
+import { Analytics } from './components/Analytics';
+import { NotesVault } from './components/NotesVault';
+import { NoteDetail } from './components/NoteDetail';
+import { IdeaSynthesis } from './components/IdeaSynthesis';
+import { HexLab } from './components/HexLab';
+import { CodePrototypes, CodeView } from './components/CodePrototypes';
+import { Schemes } from './components/Schemes';
+import { generateNotes, buildActivitySeries } from './lib/generate';
 import { DEFAULT_PANELS, PANEL_META } from './lib/layout';
 import { CONCEPTS, EDGES } from './lib/concepts';
+import { SCHEMES } from './lib/generate';
 import type { Note, CodeProto, PanelState } from './types';
 
 export default function App() {
@@ -25,6 +24,7 @@ export default function App() {
   const [panels, setPanels] = useState<PanelState[]>(() => DEFAULT_PANELS.map((p) => ({ ...p })));
   const [raisedId, setRaisedId] = useState<string | null>('neural');
   const [focusTarget, setFocusTarget] = useState<string | null>(null);
+  const [focusNonce, setFocusNonce] = useState(0);
   const [expanded, setExpanded] = useState<string | null>(null);
   const [selectedNote, setSelectedNote] = useState<Note | null>(null);
   const [selectedProto, setSelectedProto] = useState<CodeProto | null>(null);
@@ -49,7 +49,6 @@ export default function App() {
 
   const bumpVision = useCallback(() => setVisionIndex((v) => 30 + ((v - 30 + 7) % 70)), []);
   const onViewport = useCallback((vp: { w: number; h: number }) => { vpRef.current = vp; }, []);
-  const onFocused = useCallback(() => setFocusTarget(null), []);
 
   const movePanel = (id: string, x: number, y: number) => setPanels((ps) => ps.map((p) => (p.id === id ? { ...p, x, y } : p)));
   const resizePanel = (id: string, w: number, h: number) => setPanels((ps) => ps.map((p) => (p.id === id ? { ...p, w, h } : p)));
@@ -60,6 +59,7 @@ export default function App() {
     setPanels((ps) => ps.map((p) => (p.id === id ? { ...p, visible: true } : p)));
     setRaisedId(id);
     setFocusTarget(id);
+    setFocusNonce((n) => n + 1);
   };
   const togglePanel = (id: string) => setPanels((ps) => ps.map((p) => (p.id === id ? { ...p, visible: !p.visible } : p)));
   const resetLayout = () => {
@@ -115,12 +115,12 @@ export default function App() {
           panels={panels}
           raisedId={raisedId}
           focusTarget={focusTarget}
+          focusNonce={focusNonce}
           onMove={movePanel}
           onResize={resizePanel}
           onHide={hidePanel}
           onExpand={setExpanded}
           onRaise={raisePanel}
-          onFocused={onFocused}
           onViewport={onViewport}
           renderContent={renderContent}
         />

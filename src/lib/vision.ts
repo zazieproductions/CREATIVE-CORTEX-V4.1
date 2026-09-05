@@ -1,5 +1,4 @@
 import { mulberry32, pick, pickN, type Rng } from './rng';
-import { SEEDS } from './config';
 import { ADJ, CONCEPT_NOUNS, PHENOMENA, DOMAINS } from './banks';
 
 const FRAG_A = [
@@ -62,7 +61,7 @@ export function makeVision(rng: Rng): { text: string; tags: string[] } {
 export class VisionGenerator {
   private rng: Rng;
   private counter = 0;
-  constructor(seed = SEEDS.vision) {
+  constructor(seed = 20240517) {
     this.rng = mulberry32(seed);
   }
   next() {

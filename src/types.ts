@@ -40,7 +40,7 @@ export interface Scheme {
   vectors: string[];
   phases: { name: string; detail: string }[];
   targets: string[];
-  impact: number;
+ impact: number;
   risk: string;
   status: 'latent' | 'seeding' | 'cascading' | 'entangled';
 }

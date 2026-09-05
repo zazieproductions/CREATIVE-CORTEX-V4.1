@@ -1,18 +1,46 @@
 # Security
 
-NEXUS is a static, client-only application with no backend, no authentication, no stored user data, and no third-party runtime calls (web fonts are the only external fetch). Its attack surface is therefore small, but not zero.
+NEXUS//OS is a static, client-side art piece. Its security surface is
+deliberately small, and this document states exactly what it is.
 
-## Reporting
+---
 
-Report security concerns privately by opening a GitHub security advisory or contacting Zazie Productions directly — **do not** open a public issue for a security vulnerability.
+## Scope
 
-## What matters here
+- **No backend, no database, no auth, no user data.** Nothing a user does is
+  transmitted anywhere; there is no server to attack and no data to exfiltrate.
+- **No secrets.** The build reads no environment variables and embeds no keys.
+- **No runtime data dependencies.** Fonts are self-hosted; there are no
+  third-party scripts or trackers in the shipped `index.html`.
 
-- **Dependency hygiene.** The only runtime dependencies are React, framer-motion, lucide-react, and Tailwind. `npm audit` is expected to be clean; the previous `react-router-dom` advisory vector was removed when the unused dependency was excised.
-- **Generated content is inert.** Notes, schemes, and prototypes are rendered as text (React escapes by default) and the code viewer tokenizes without `innerHTML`. There is no user-supplied HTML injection path.
-- **No telemetry.** The archive intentionally removed the generation harness's recorder and beacon; the shipped app performs no analytics or session recording.
+## The actual risks
 
-## Out of scope
+1. **Supply chain (build-time).** The project depends on ~220 npm packages at
+   install time. The usual mitigations apply and are expected of contributors:
 
-- Vulnerabilities in the fonts CDN or in browsers themselves.
-- Social-engineering "schemes" depicted in the artwork — they are fiction, not instructions or functionality.
+   ```bash
+   npm audit          # review known vulnerabilities
+   npm ci             # install from the lockfile, never `npm install` ad hoc
+   ```
+
+   Dependabot alerts are enabled on the repository. CI runs `npm ci` (not
+   `npm install`) so builds are reproducible from the lockfile.
+
+2. **The PRNG is not cryptographic.** `mulberry32` generates content, not keys.
+   Nothing in the app uses it for anything security-relevant, and it must not be
+   used that way in future contributions.
+
+3. **`navigator.clipboard` (Hex Lab).** Copying a hex value uses the Clipboard
+   API, which requires a secure context (HTTPS or localhost). The GitHub Pages
+   deployment is HTTPS; local dev over `http://localhost` is a secure context.
+   No other sensitive APIs are used.
+
+## Reporting a vulnerability
+
+If you find a real security issue (e.g., a dependency with a serious advisory
+that should be pinned or removed), open an issue in the repository. Given the
+project's nature, "security" here almost always means a dependency concern; it
+will be treated as a normal bug with priority.
+
+Do **not** expect a formal coordinated-disclosure process or a bug bounty: this
+is an experimental art repository, and this is the honest statement of that.

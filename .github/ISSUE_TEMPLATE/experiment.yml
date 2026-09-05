@@ -1,0 +1,36 @@
+name: Experiment proposal
+description: A new instrument, domain, scheme, fragment grammar, or system direction.
+title: "[experiment] "
+labels: ["experiment"]
+body:
+  - type: textarea
+    id: idea
+    attributes:
+      label: The idea
+      description: What would exist, and what it would let a visitor do.
+    validations:
+      required: true
+  - type: textarea
+    id: premise
+    attributes:
+      label: How it serves the premise
+      description: How this deepens the "creative-genius operating system" fiction rather than flattening it.
+    validations:
+      required: true
+  - type: textarea
+    id: mechanics
+    attributes:
+      label: Mechanics
+      description: "Sketch the implementation: data banks, generator shape, state, rendering path."
+    validations:
+      required: false
+  - type: dropdown
+    id: scope
+    attributes:
+      label: Scope
+      options:
+        - "near-term (grounded in current architecture)"
+        - "experimental (ambitious, feasible)"
+        - "research (unusual, low commitment)"
+    validations:
+      required: true

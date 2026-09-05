@@ -1,33 +1,68 @@
 # Contributing
 
-NEXUS is a single-author studio artefact, but collaboration is welcome where it respects the work's voice. This is a deliberately lightweight process.
+NEXUS//OS is an experimental art repository first and a codebase second. It
+welcomes two kinds of contribution: **technical** (fixes, ports, instruments)
+and **conceptual** (new domains, schemes, fragments, palettes). Both go through
+the same lightweight workflow.
 
-## Before you write code
+---
 
-- Read [docs/creative/concept.md](docs/creative/concept.md) — the piece has a character; changes should not flatten it.
-- Read [ARCHITECTURE.md](ARCHITECTURE.md) so your change lands in the right layer.
-- Prefer the generative layer for content: add vocabulary/templates, not hardcoded data (schemes and prototypes are the curated exceptions).
+## Ground rules
+
+- **Preserve the premise.** The piece is a satirical "creative-genius OS." New
+  features should deepen that fiction, not flatten it into a dashboard.
+- **Keep generation deterministic.** Content generators take a seed and return
+  typed data. Use `Math.random()` only where the act should be genuinely
+  one-off (the synthesis forge) and `Date.now()` only for wall-clock values.
+- **Respect the colour language.** Module accents, domain colours, and the
+  coherence/resonance/novelty trio are a shared legend — reuse them, don't
+  improvise new ones casually.
+- **No new runtime dependencies without a reason.** The app is static and
+  self-hosted (fonts included); keep it that way.
 
 ## Workflow
 
-1. Fork / branch from `main`.
-2. `npm ci`, then keep the gate green: `npm run verify`.
-3. If you change the UI, regenerate real screenshots: `npm run capture:screenshots`.
-4. Keep commits focused; describe the *why*.
-5. Open a PR against `main` using the template; CI (typecheck, lint, test, build) must pass.
+1. **Open an issue** (bug report or experiment proposal — templates exist in
+   `.github/ISSUE_TEMPLATE/`). Describe the change before writing it.
+2. **Branch** from `main`: `fix/…`, `feat/…`, or `experiment/…`.
+3. **Implement** with tests where the change touches `src/lib/` (the
+   deterministic core has full coverage; keep it that way).
+4. **Run the gates:**
 
-## What we merge
+   ```bash
+   npm run check
+   ```
 
-- Determinism-preserving changes (seeded, reproducible).
-- Legibility: extraction of meaningful modules, comments where the *why* isn't obvious.
-- Documentation that matches the code.
+   `check` runs `typecheck`, `lint`, `test`, and `build` in order. All must
+   pass.
 
-## What we don't
+5. **Open a pull request.** Use the PR template. Link the issue.
+6. CI runs the same gates on every PR; a maintainer merges to `main`, which
+   auto-deploys to GitHub Pages.
 
-- Generic startup branding, emoji-heavy formatting, or marketing copy.
-- New dependencies without a proportionate reason.
-- Hand-authored content that the generator should own.
+## Adding an instrument
 
-## License
+To add a new module panel:
 
-**There is currently no license file.** All rights are reserved by Zazie Productions. By submitting a contribution you grant Zazie Productions the right to include it under whatever license the author later chooses. If you need a specific license to contribute, raise it in an issue first.
+1. Add its metadata to `PANEL_META` and a default `PanelState` in
+   `src/lib/layout.ts`.
+2. Create the component in `src/components/`.
+3. Register it in `App.tsx`'s `renderContent` switch.
+4. Pick an accent colour consistent with the visual language
+   (`docs/design/visual-language.md`).
+5. If it generates content, follow the pattern in
+   `docs/technical/generative-systems.md` and add unit tests.
+
+## Style
+
+- TypeScript strict mode; no `any` unless there is a documented reason.
+- React hooks/compiler rules are enforced (`eslint-plugin-react-hooks` v7) —
+  no ref reads during render, no `setState` in effect bodies.
+- Comments explain *why*, not what. The codebase prefers a comment on the
+  non-obvious decision over a comment on the syntax.
+
+## Reporting bugs
+
+Use the bug-report template. Include: Node version, browser, what you did, what
+you expected, what happened, and — for visual issues — a screenshot. For the
+generative core, include the seed if you changed one.

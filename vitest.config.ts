@@ -1,13 +1,11 @@
-import { defineConfig } from 'vitest/config';
+import { defineConfig } from 'vitest/config'
 
-/**
- * Test runner config, deliberately separate from vite.config.ts so the browser
- * build never pulls test concerns in, and the suite runs in Node against the
- * pure `src/lib` layer (no DOM needed).
- */
+// Dedicated Vitest config so the unit tests for the generative core run in a
+// plain Node environment without pulling in the app's React/Tailwind Vite
+// plugins (which are irrelevant to pure-logic tests and slow to load).
 export default defineConfig({
   test: {
     include: ['tests/**/*.test.ts'],
     environment: 'node',
   },
-});
+})

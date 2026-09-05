@@ -1,29 +1,84 @@
 # Interaction model
 
-How agency is distributed between the user and the machine.
+How the piece is *operated*, and what the operation means. This is a document
+about both the mechanics and the gesture language.
 
-## Two cameras, two worlds
+---
 
-The stage is a world you fly over (pan/zoom/minimap); each panel is a world you manipulate directly (drag/resize/expand). The model keeps these distinct: empty-space gestures move the camera; gestures that begin on a panel act on that panel; gestures on atlas nodes act on the simulation. Pointer-capture and `stopPropagation` boundaries enforce the layering.
+## Two modes of engagement
 
-## Direct manipulation first
+NEXUS//OS offers two distinct stances, and the shift between them is the piece's
+core interaction:
 
-Everything important is grabbable: panels by their header, nodes by their body, the stage by its backdrop, the minimap to teleport. There are no nested menus; the only overlay chrome is the command palette (`⌘K`) and modals.
+1. **Operator** — the user drives the machine: opens windows, searches the
+   vault, drags nodes, forges concepts. Agency is explicit and mechanical.
+2. **Observer** — the user watches the machine drive itself: the graph relaxes,
+   the stream types, the activity chart breathes. Agency is withdrawn; the OS
+   performs cognition without a cognizer.
 
-## The palette as the universal verb
+Most of the interface alternates between these without announcing it. The
+vision stream never stops; the user can always interrupt it by grabbing a node
+or opening the palette — and always return to watching.
 
-`⌘K` searches notes, concepts, and schemes in one list with arrow/enter/esc. It is the fastest path between the three corpora and the reason the OS feels navigable despite its density.
+---
 
-## Commit as the only mutation
+## The gesture set
 
-The user cannot edit the corpus; the sole write is the forge's **commit to vault**, which appends a synthesized note. This asymmetry is deliberate: NEXUS is a mind you observe and occasionally feed, not a document you edit.
+| Gesture | Target | Result | Feedback |
+| --- | --- | --- | --- |
+| drag | panel header | move (8 px grid) | window re-raises, accent glow |
+| drag | panel corner | resize | live geometry |
+| drag | empty stage | pan | cursor → grabbing |
+| `Ctrl/⌘`+wheel | stage | zoom at cursor | scale % readout |
+| drag | graph node | pin node | physics reacts around it |
+| click | graph node | select | inspector + neighbour highlight |
+| double-click | graph | recentre | nodes re-seed |
+| click | minimap | jump view | viewport rect moves |
+| `Ctrl/⌘`+K | anywhere | palette | overlay + focus |
+| type | palette input | filter 360+ objects | count updates live |
+| ↑↓ / Enter | palette | select / open | note modal or panel focus |
 
-## Feedback & liveness
+Gestures are implemented with Pointer Events and `setPointerCapture`, so a drag
+keeps tracking the pointer outside the element. There is no click-vs-drag
+threshold: a node "click" is a pointer-down (which begins a potential drag),
+and selection happens on down — the natural, immediate feel of an instrument
+rather than a form.
 
-Live elements advertise themselves with `pulse-glow`/blink; selection raises z-order and lights adjacent edges; hover previews labels. The machine never blocks — every control responds immediately, and long operations (forge) show a brief deterministic "forging…" state.
+## Feedback loops (the intentional ones)
 
-## Keyboard
+The piece is threaded with small feedback loops between a module and the
+"system" that appears to observe it:
 
-- `⌘K`/`Ctrl+K` palette · arrows navigate · `Enter` open · `Esc` close.
-- `Ctrl+wheel` zoom.
-That is the whole keyboard surface today; widening it is on the ROADMAP.
+- **Vision stream → vision index.** Each completed fragment bumps `visionIndex`,
+  displayed in the OS bar and the analytics gauges. The stream's output changes
+  the OS's *own* telemetry.
+- **Synthesis → vault → counts.** Committing a synthesized note grows the vault
+  count in the OS bar and the sidebar, and the note becomes searchable.
+- **Node selection → linked notes.** Selecting a concept surfaces the field
+  notes *about* that concept — the graph and the prose are two views of the same
+  data.
+- **Palette locks → regeneration.** Locking a swatch preserves it across
+  regenerations, turning a random generator into a curatorial tool.
+
+These loops are what make the OS feel like it *runs* even though nothing is
+"running" in any backend sense: every displayed change has a visible cause
+inside the interface.
+
+## User agency vs. the machine
+
+The tension is by design. The user can drag every node into any configuration,
+then double-click and watch the machine's own physics undo it. The user can
+forge a concept, but the template decides what the forge says. The user can
+search the vault, but the vault was written by a seed. The interface gives
+generous, real agency over *arrangement* while withholding it over *content* —
+a precise, if wry, model of how "AI" products actually distribute control.
+
+## Intentional instability
+
+- The graph never fully settles: a per-frame jitter term keeps it faintly alive.
+- The entropy gauge oscillates with the wall clock, refusing a stable reading.
+- The vision stream's fragments are grammatically plausible and semantically
+  unmoored; they feel like signals that do not quite resolve.
+
+None of this is a bug; it is the machine's performance of consciousness as
+*persistent slight instability*.

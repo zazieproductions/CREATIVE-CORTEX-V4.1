@@ -5,47 +5,53 @@ on:
     branches: [main]
   workflow_dispatch:
 
-# Only one Pages deployment at a time.
-concurrency:
-  group: pages
-  cancel-in-progress: true
-
+# Grant the deployment job permission to write to Pages and mint an OIDC token.
 permissions:
   contents: read
   pages: write
   id-token: write
 
+# One Pages deploy at a time.
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
 jobs:
   build:
+    name: Build static bundle
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
 
-      - uses: actions/setup-node@v4
+      - name: Set up Node
+        uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: npm
 
-      - name: Install
+      - name: Install dependencies (clean)
         run: npm ci
 
-      # Production build emits asset URLs prefixed with the Pages sub-path
-      # (/CREATIVE-CORTEX-V4.1/). Override with VITE_BASE for domain-root hosts.
       - name: Build
         run: npm run build
 
-      - uses: actions/configure-pages@v5
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
 
-      - uses: actions/upload-pages-artifact@v3
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
         with:
           path: dist
 
   deploy:
+    name: Deploy
     needs: build
     runs-on: ubuntu-latest
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - id: deployment
+      - name: Deploy to GitHub Pages
+        id: deployment
         uses: actions/deploy-pages@v4
