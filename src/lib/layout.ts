@@ -1,9 +1,7 @@
 import type { PanelState } from '../types';
-import { NOTE_COUNT, STAGE } from './config';
 
-/** Stage extents re-exported from the shared config for ergonomics. */
-export const STAGE_W = STAGE.width;
-export const STAGE_H = STAGE.height;
+export const STAGE_W = 2360;
+export const STAGE_H = 1180;
 
 export interface PanelMeta {
   id: string;
@@ -17,7 +15,7 @@ export const PANEL_META: PanelMeta[] = [
   { id: 'neural', title: 'Neural Atlas', subtitle: 'knowledge graph', accent: '#22d3ee', icon: 'workflow' },
   { id: 'vision', title: 'Vision Stream', subtitle: 'live cognition', accent: '#e879f9', icon: 'radio' },
   { id: 'analytics', title: 'Cortex Analytics', subtitle: 'metrics + signals', accent: '#a78bfa', icon: 'activity' },
-  { id: 'notes', title: 'Field Notes Vault', subtitle: `${NOTE_COUNT} notes`, accent: '#34d399', icon: 'notebook' },
+  { id: 'notes', title: 'Field Notes Vault', subtitle: '327 notes', accent: '#34d399', icon: 'notebook' },
   { id: 'idea', title: 'Idea Synthesis', subtitle: 'concept forge', accent: '#fbbf24', icon: 'atom' },
   { id: 'hex', title: 'Hex Lab', subtitle: 'palette foundry', accent: '#f472b6', icon: 'palette' },
   { id: 'code', title: 'Code Prototypes', subtitle: 'visionary sketches', accent: '#2dd4bf', icon: 'terminal' },

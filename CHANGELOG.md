@@ -1,42 +1,93 @@
 # Changelog
 
-The format is descriptive rather than strictly semver; the project is a studio artefact.
+All notable changes to NEXUS//OS are recorded here. The project uses a
+single-stream format (no strict SemVer ceremony) because the "v4.1" in the
+title is part of the fiction as much as the versioning.
 
-## [4.1.0] — archival & legibility release
+---
 
-The repository was transformed from a working prototype into its canonical technical archive.
+## [4.1.0] — repository archival & portfolio release
+
+This release is the *archive* of the work rather than a feature release: the
+code is unchanged in behaviour, and the repository around it was rebuilt into a
+maintainable, documented project.
 
 ### Added
-- Documentation system: `ARCHITECTURE.md`, `docs/{technical,design,development,creative}`, `docs/README.md`.
-- Real screenshot automation (`scripts/capture-screenshots.mjs`) + captured `docs/images/*`.
-- `scripts/generate-atlas-bg.mjs` — procedural generator for `public/atlas-bg.png` (pure Node PNG writer), plus `public/favicon.svg` and `public/og-image.png`.
-- Test suite: Vitest over the generative layer + assets (`tests/`, 30 tests).
-- GitHub Actions: `ci.yml` and `deploy-pages.yml`; issue/PR templates.
-- `CONTRIBUTING.md`, `SECURITY.md`, `ROADMAP.md`, this changelog.
-- `.env.example` documenting the optional `VITE_BASE`.
+
+- `README.md` — full orientation: overview, controls, architecture map,
+  screenshots, install/develop/build/deploy, design and concept links.
+- `ARCHITECTURE.md` — system design with Mermaid diagrams (component map,
+  focus/zoom sequence, rendering loop, data pipeline, build/deploy pipeline).
+- `docs/technical/` — rendering system, state model, data flow, generative
+  systems, performance model.
+- `docs/design/` — interface system, visual language, interaction model.
+- `docs/concept.md` — the artistic intent and computational aesthetics.
+- `docs/development/` — setup, debugging, deployment.
+- `CONTRIBUTING.md`, `SECURITY.md`, `ROADMAP.md`.
+- Unit test suite (Vitest, 31 tests) covering the deterministic core: RNG,
+  note generation, knowledge graph, vision generator, synthesis, palettes,
+  analytics series.
+- CI workflow (`.github/workflows/ci.yml`): install → typecheck → lint → test →
+  build.
+- GitHub Pages deployment workflow
+  (`.github/workflows/deploy-pages.yml`) and deployment documentation.
+- Screenshot pipeline (`scripts/capture-screenshots.mjs`,
+  `npm run capture:screenshots`) producing real 1440×900 captures and the
+  1280×640 social card.
+- Self-hosted fonts (`@fontsource/space-grotesk`, `@fontsource/jetbrains-mono`),
+  removing the Google Fonts runtime dependency.
+- Missing brand assets: `public/favicon.svg`, `public/atlas-bg.svg`,
+  `public/og-cover.png`.
+- `npm run typecheck`, `npm run check`, and the `test`/`test:watch` scripts.
 
 ### Changed
-- Repository reorganised: `components/` → `components/shell` + `components/panels`; `lib/generate.ts` split into `notes/schemes/prototypes/palettes/analytics`; styles split into `styles/{tokens,base,index}.css`; tokenizer extracted to pure `lib/highlight.ts`.
-- Configuration centralised in `src/lib/config.ts` (seeds, corpus sizes, force constants, stage, camera).
-- Base path wired for GitHub Pages (`/CREATIVE-CORTEX-V4.1/` in prod, `/` in dev, `VITE_BASE` override); runtime public-asset URLs use `import.meta.env.BASE_URL`.
-- `index.html` rewritten with real metadata + OG tags; package identity (`nexus-creative-cortex`, v4.1.0) and full script surface.
 
-### Fixed
-- Missing `/atlas-bg.png` and `/favicon.svg` (both were 404s on every load).
-- `npm run lint` failures (22 errors) — real bugs fixed: command-palette use-before-declare, impure render (`Date.now()` in render), unused imports/vars, `prefer-const`.
-- Atlas node lookup reduced from `Array.find` (O(E·N)/frame) to a `Map` (O(E)/frame).
-- Fragile `Object.keys(DOMAIN_COLORS)[i]` colour mapping replaced with `DOMAINS[i]`.
-- Hardcoded "327" UI copy now derives from `NOTE_COUNT`.
+- `package.json` — real name (`creative-cortex`), version 4.1.0, description,
+  repository/author/keywords metadata, `engines`, expanded scripts.
+- `vite.config.ts` — simplified to `base: './'` for sub-path deployment;
+  removed the optional `.vite-source-tags.js` import (export tooling).
+- `index.html` — rebuilt: title/description/OpenGraph/Twitter meta, relative
+  favicon, and removal of the DesignArena export instrumentation scripts
+  (rrweb session recording, page-view beacon, element picker).
+- `src/` refactors to satisfy the React hooks/compiler lint rules:
+  - `NeuralGraph` — physics working set in refs + per-frame state snapshot;
+    selection by id.
+  - `Workspace` — event-driven viewport clamp; render-time focus centring via
+    a `focusNonce`; cursor state instead of a ref read during render.
+  - `VisionStream` — generator held in state.
+  - `Analytics` — wall-clock entropy sampled on a timer.
+  - `CommandPalette` — `exec` as `useCallback`, selection reset in the input
+    handler.
+  - `lib/vision.ts` — removed unused parameters.
+- ESLint now passes cleanly (0 errors, 0 warnings) under
+  `eslint-plugin-react-hooks` v7.
 
 ### Removed
-- Generation-harness instrumentation (rrweb recorder, telemetry beacon, element picker, `vite-source-tags` build plugin) — preserved under `archive/`.
-- Unused `react-router-dom` (removed 2 high-severity advisories; `npm audit` now clean).
-- Empty, unimported `src/App.css`.
 
-### Security
-- Excised the external telemetry beacon and session recorder that shipped in the export.
-- `npm audit` reports 0 vulnerabilities.
+- `src/App.css` — empty, unreferenced template remnant.
+- `react-router-dom` — declared but never used.
+- `.vite-source-tags.js` — DesignArena export tooling (injected `data-source-loc`
+  attributes); orphaned once `vite.config.ts` no longer imported it.
+- DesignArena export scripts from `index.html` (recording/telemetry/element
+  picker).
 
-## [0.0.0] — original export
+### Fixed
 
-Initial single-commit export from the generation environment ("DesignArena export"). Stock Vite README, harness-injected scripts, no tests, no CI, no docs.
+- Dev/preview servers now bind to all interfaces and accept any Host header
+  (`host: true`, `allowedHosts: true`) so proxied live previews and CI
+  screenshot jobs can reach them (Vite 7 otherwise 403s unknown hosts).
+
+- 22 pre-existing lint errors (unused vars/imports, `prefer-const`,
+  `@ts-ignore`, empty blocks, ref-during-render, set-state-in-effect,
+  impure-render `Date.now()`).
+- Broken asset references (`/atlas-bg.png`, `/favicon.svg` → now committed).
+
+---
+
+## [4.0.0] — the work itself
+
+The Creative Cortex v4.1 as conceived and built by Zazie Productions: the
+eight-module instrument, the seeded generative core, the force-directed atlas,
+and the windowed stage. This changelog begins at the archival release; the
+earlier evolution is not reconstructed here because the repository's history
+began as a single export.

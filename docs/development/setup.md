@@ -1,44 +1,74 @@
-# Setup
+# Development setup
 
-## Requirements
+Everything needed to get from a fresh clone to a running dev server, a green
+test suite, and a production build.
 
-- Node.js ≥ 20 (developed on Node 22).
-- No environment variables are required. (`VITE_BASE` is optional; see deployment.)
+---
 
-## Install & run
+## Prerequisites
+
+- **Node.js 20.19+** (declared in `package.json` `engines`). Node 22 LTS is the
+  tested baseline.
+- **npm 10+** (the lockfile is `package-lock.json`).
+- No databases, no services, no environment variables, no secrets. The app is
+  fully static and fully offline after install.
+
+## Install
 
 ```bash
-npm ci            # reproducible install from package-lock
-npm run dev       # http://localhost:5173/  (HMR)
+git clone https://github.com/zazieproductions/CREATIVE-CORTEX-V4.1.git
+cd CREATIVE-CORTEX-V4.1
+npm ci
 ```
 
-## Verify
+Use `npm ci` (not `npm install`) for a reproducible tree from the lockfile.
+
+## Run
 
 ```bash
-npm run typecheck # tsc -b
-npm run lint      # eslint
-npm test          # vitest run
-npm run build     # tsc -b && vite build
-npm run verify    # all of the above in sequence
+npm run dev
 ```
 
-## Scripts
+Vite prints the local URL (default `http://localhost:5173`). Hot-module
+replacement is active; edits to `src/` apply without a full reload.
 
-| Script | Purpose |
-| --- | --- |
-| `dev` | Vite dev server, bound to all interfaces |
-| `build` | typecheck + production build (Pages base path) |
-| `typecheck` / `lint` / `test` | checks |
-| `preview` | serve `dist` at the production base path |
-| `preview:local` | serve `dist` at `/` (`VITE_BASE=/`) |
-| `assets:atlas` | regenerate `public/atlas-bg.png` |
-| `capture:screenshots` | real screenshot automation into `docs/images/` |
-| `verify` | typecheck + lint + test + build |
+## Quality gates
 
-## Environment variables
+```bash
+npm run typecheck   # TypeScript project references (app + tests + vite config)
+npm run lint        # ESLint flat config, incl. react-hooks/compiler rules
+npm test            # Vitest unit suite (31 tests) over tests/unit/
+npm run build       # production bundle to dist/
+npm run check       # typecheck + lint + test + build, in order
+```
 
-None required. Optional: `VITE_BASE` overrides the asset base path (`/` for domain-root serving; default is `/CREATIVE-CORTEX-V4.1/` in production builds, `/` in dev). A `.env.example` documents it.
+`npm run check` is what CI runs; it should be green before any PR.
 
-## Why there is no backend
+## Screenshots
 
-NEXUS is a stateless client artefact. If you add persistence or a server, update [ARCHITECTURE.md](../../ARCHITECTURE.md) and the deployment doc — the current Pages deployment assumes static output.
+```bash
+npm run capture:screenshots
+```
+
+Builds the app, serves `dist/`, drives a headless browser, and writes the three
+interface captures and the 1280×640 social card (see
+`scripts/capture-screenshots.mjs` for the browser-resolution logic and the
+`CHROMIUM_EXECUTABLE` / `CHROMIUM_LD_LIBRARY_PATH` escape hatches for
+restricted hosts).
+
+## What you should not need
+
+- **No `.env`** — the build reads no environment variables. `vite.config.ts`
+  sets only `base: './'`.
+- **No font CDN** — Space Grotesk and JetBrains Mono are bundled via
+  `@fontsource` and imported in `src/main.tsx`.
+- **No backend** — there is nothing to run besides the static frontend.
+
+## Troubleshooting the first run
+
+| Symptom | Cause | Fix |
+| --- | --- | --- |
+| `npm ci` fails on engine | Node too old | install Node 20.19+ |
+| `tsc -b` errors about `vitest` | stale install | `rm -rf node_modules && npm ci` |
+| Dev server serves 404 for `/atlas-bg.svg` | missing `public/` asset | confirm `public/atlas-bg.svg` and `public/favicon.svg` exist |
+| Screenshots time out | software rendering + backdrop blur | capture at 1440×900 (default) or use a GPU host |

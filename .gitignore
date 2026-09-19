@@ -12,8 +12,12 @@ dist
 dist-ssr
 *.local
 
-# Environment
-.env
+# test / tooling output
+coverage
+test-results
+playwright-report
+blob-report
+.vitest
 
 # Editor directories and files
 .vscode/*
@@ -25,12 +29,5 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
-
-# Harness / tooling artifacts (not part of the archive)
 .vite-source-tags.js
 .vercel
-
-# Test / coverage output
-coverage
-playwright-report
-test-results

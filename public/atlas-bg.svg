@@ -1,0 +1,72 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="2360" height="1180" viewBox="0 0 2360 1180">
+  <!--
+    NEXUS//OS atlas backdrop.
+    A faint constellation field — sparse nodes and synaptic filaments — rendered
+    under the workspace at ~8% opacity with mix-blend:screen. Deterministic,
+    hand-authored; the same void palette as the stage it sits beneath.
+  -->
+  <defs>
+    <radialGradient id="glow-cyan" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#22d3ee" stop-opacity="0.5"/>
+      <stop offset="100%" stop-color="#22d3ee" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="glow-violet" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#a78bfa" stop-opacity="0.45"/>
+      <stop offset="100%" stop-color="#a78bfa" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="glow-flux" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#e879f9" stop-opacity="0.4"/>
+      <stop offset="100%" stop-color="#e879f9" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <rect width="2360" height="1180" fill="#06060d"/>
+
+  <!-- ambient colour fields -->
+  <circle cx="1780" cy="180" r="420" fill="url(#glow-cyan)"/>
+  <circle cx="420" cy="960" r="440" fill="url(#glow-flux)"/>
+  <circle cx="1180" cy="560" r="520" fill="url(#glow-violet)"/>
+
+  <!-- synaptic filaments -->
+  <g stroke="#7c86c8" stroke-opacity="0.14" stroke-width="1" fill="none">
+    <path d="M120 180 L420 320 L760 260 L1080 420"/>
+    <path d="M420 320 L360 660 L640 880 L1080 760"/>
+    <path d="M760 260 L1180 420 L1640 300 L2060 480"/>
+    <path d="M1080 420 L1080 760 L1500 940"/>
+    <path d="M1640 300 L1860 640 L2260 560"/>
+    <path d="M640 880 L1080 760 L1500 940 L1960 860"/>
+    <path d="M360 660 L640 880"/>
+    <path d="M1860 640 L2060 480 L2260 560"/>
+  </g>
+
+  <!-- constellation nodes -->
+  <g fill="#c8cadb">
+    <circle cx="120" cy="180" r="3" fill="#22d3ee"/>
+    <circle cx="420" cy="320" r="4"/>
+    <circle cx="760" cy="260" r="2.5" fill="#e879f9"/>
+    <circle cx="1080" cy="420" r="5" fill="#22d3ee"/>
+    <circle cx="360" cy="660" r="3"/>
+    <circle cx="640" cy="880" r="4.5" fill="#a78bfa"/>
+    <circle cx="1080" cy="760" r="3"/>
+    <circle cx="1500" cy="940" r="2.5"/>
+    <circle cx="1640" cy="300" r="4" fill="#e879f9"/>
+    <circle cx="1860" cy="640" r="3"/>
+    <circle cx="2060" cy="480" r="4" fill="#22d3ee"/>
+    <circle cx="2260" cy="560" r="2.5"/>
+    <circle cx="1960" cy="860" r="3" fill="#a78bfa"/>
+    <circle cx="880" cy="120" r="2"/>
+    <circle cx="1400" cy="180" r="2" fill="#c8cadb"/>
+    <circle cx="2080" cy="220" r="2"/>
+    <circle cx="240" cy="1040" r="2" fill="#e879f9"/>
+    <circle cx="1320" cy="1060" r="2"/>
+    <circle cx="2220" cy="980" r="2" fill="#22d3ee"/>
+  </g>
+
+  <!-- faint node halos -->
+  <g fill="none" stroke-width="1">
+    <circle cx="1080" cy="420" r="12" stroke="#22d3ee" stroke-opacity="0.25"/>
+    <circle cx="640" cy="880" r="10" stroke="#a78bfa" stroke-opacity="0.25"/>
+    <circle cx="1640" cy="300" r="10" stroke="#e879f9" stroke-opacity="0.22"/>
+    <circle cx="2060" cy="480" r="9" stroke="#22d3ee" stroke-opacity="0.22"/>
+  </g>
+</svg>

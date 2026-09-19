@@ -1,23 +1,24 @@
-## What & why
+## What
 
-<!-- Describe the change and the reasoning. Link the relevant doc if one exists. -->
+A one-paragraph summary of the change. If it is a new instrument, domain, or
+scheme, describe the *fiction* it adds as well as the code.
 
-## Layer touched
+## Why
 
-- [ ] Generative (`src/lib`) — determinism preserved?
-- [ ] State (`App` / hooks)
-- [ ] Presentation (`components/*`)
-- [ ] Styles / tokens
-- [ ] Docs / screenshots
-- [ ] Build / CI
+Why this belongs in the Creative Cortex. Link the issue.
 
-## Checks
+## How it works
 
-- [ ] `npm run verify` is green (typecheck, lint, test, build)
-- [ ] If the UI changed, `npm run capture:screenshots` was re-run and committed
-- [ ] No new dependency added without justification
-- [ ] Determinism: no unseeded runtime randomness introduced
+For generative changes: the seed, the banks touched, and the template grammar.
+For UI changes: the state touched and the interaction added.
+
+## Verification
+
+- [ ] `npm run check` passes (typecheck · lint · test · build)
+- [ ] Tests added/updated for `src/lib/` changes
+- [ ] Visual change verified in the browser
+- [ ] No new runtime dependencies (or a justification for each)
 
 ## Screenshots
 
-<!-- Paste before/after captures if visual. -->
+Attach captures if the change is visual.

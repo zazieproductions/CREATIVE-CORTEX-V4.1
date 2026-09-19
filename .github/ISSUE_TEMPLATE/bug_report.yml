@@ -1,0 +1,45 @@
+name: Bug report
+description: Something in the OS is misbehaving.
+title: "[bug] "
+labels: ["bug"]
+body:
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened
+      description: Steps, expected behaviour, actual behaviour.
+      placeholder: "1. Open the Neural Atlas\n2. Drag a node\n3. …"
+    validations:
+      required: true
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Severity
+      options:
+        - "cosmetic"
+        - "functional"
+        - "crash / freeze"
+    validations:
+      required: true
+  - type: input
+    id: environment
+    attributes:
+      label: Environment
+      description: "Node version, browser + version, OS."
+      placeholder: "Node 22, Chrome 128, macOS"
+    validations:
+      required: true
+  - type: textarea
+    id: screenshots
+    attributes:
+      label: Evidence
+      description: Screenshots or a console excerpt, if relevant.
+    validations:
+      required: false
+  - type: input
+    id: seed
+    attributes:
+      label: Seed (if you changed one)
+      description: The generative core is deterministic, so the seed identifies a failing state.
+    validations:
+      required: false

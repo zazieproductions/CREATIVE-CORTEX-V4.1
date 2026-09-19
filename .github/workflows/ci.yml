@@ -4,19 +4,23 @@ on:
   push:
     branches: [main]
   pull_request:
+  workflow_dispatch:
 
 jobs:
-  check:
+  verify:
+    name: typecheck · lint · test · build
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
 
-      - uses: actions/setup-node@v4
+      - name: Set up Node
+        uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: npm
 
-      - name: Install
+      - name: Install dependencies (clean)
         run: npm ci
 
       - name: Typecheck
@@ -26,7 +30,7 @@ jobs:
         run: npm run lint
 
       - name: Test
-        run: npm run test
+        run: npm test
 
       - name: Build
         run: npm run build
